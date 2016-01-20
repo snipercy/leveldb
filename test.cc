@@ -2,6 +2,7 @@
 #include <string.h>
 #include <include/leveldb/db.h>
 #include <iostream>
+
 int main(){
     leveldb::DB* db;
     leveldb::Options options;
@@ -21,3 +22,4 @@ int main(){
     delete db;
     return 0;
 }
+
