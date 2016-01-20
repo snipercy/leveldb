@@ -9,10 +9,10 @@
 #include "filter_policy.h"
 
 namespace leveldb {
+    //class FilterPolicy;
     class Cache;
     class Comparator;
     class Env;
-    //class FilterPolicy;
     class Logger;
     class Snapshot;
 
