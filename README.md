@@ -43,7 +43,7 @@ cy_test: test.o $(LIBOBJECTS) $(TESTHARNESS)
 ------
 # 下面记录一些值得注意的地方
 
-#### 1. data()和c_str()
+#### 1. include/leveldb/slice.h  data()和c_str()
 
 作者在Slice中的构造函数上使用string的成员函数`data()`将`string`转换成`char *`：
 >
@@ -68,7 +68,7 @@ This array includes the same sequence of characters that make up the value of th
 
 -----
 
-#### 2. 头文件包含
+#### 2. include/leveldb/options.h
 
 在`options.h`文件中，作用通过声明的方式来使用其他文件中对应的类，如下所示：
 ```c++
@@ -96,3 +96,40 @@ namespace leveldb {
 - `#include`的方法缩短编译时间，避免了`链接阶段`的遍历；
 - 而通过声明的方式是减少了编程人员的工作，避免了头文件重复引用的问题。
 
+#### 3. include/leveldb/status.h util/status.cc
+
+在 `status.h`中，有一些成员函数，如：
+```cplusplus
+// Return error status of an appropriate type.
+  static Status NotFound(const Slice& msg, const Slice& msg2 = Slice()) {
+    return Status(kNotFound, msg, msg2);
+  }
+```
+调用了自定义的有参构造函数，该构造函数的定义如下：
+```c
+...
+Status(Code code, const Slice& msg, const Slice& msg2) {
+  assert(code != kOk);
+  const uint32_t len1 = msg.size();
+  const uint32_t len2 = msg2.size();
+  const uint32_t size = len1 + (len2 ? (2 + len2) : 0);
+  char* result = new char[size + 5];
+  memcpy(result, &size, sizeof(size));
+  result[4] = static_cast<char>(code);
+  memcpy(result + 5, msg.data(), len1);
+  if (len2) {
+    result[5 + len1] = ':';
+    result[6 + len1] = ' ';
+    memcpy(result + 7 + len1, msg2.data(), len2);
+  }
+  state_ = result;
+}
+...
+```
+在msg是用户自定义的错误描述字符串，用法如下：
+```c
+...
+return Status::NotFound("in-memory file skipped past end");
+...
+```
+看到这里，有一点不太明白: 既然`msg`是自定义的错误描述信息，那么`msg2`的存在意义是什么呢？
