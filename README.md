@@ -99,7 +99,7 @@ namespace leveldb {
 #### 3. include/leveldb/status.h util/status.cc
 
 在 `status.h`中，有一些成员函数，如：
-```cplusplus
+```c++
 // Return error status of an appropriate type.
   static Status NotFound(const Slice& msg, const Slice& msg2 = Slice()) {
     return Status(kNotFound, msg, msg2);
@@ -127,7 +127,7 @@ Status(Code code, const Slice& msg, const Slice& msg2) {
 ...
 ```
 在msg是用户自定义的错误描述字符串，用法如下：
-```c
+```c++
 ...
 return Status::NotFound("in-memory file skipped past end");
 ...
