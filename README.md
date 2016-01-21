@@ -133,3 +133,7 @@ return Status::NotFound("in-memory file skipped past end");
 ...
 ```
 看到这里，有一点不太明白: 既然`msg`是自定义的错误描述信息，那么`msg2`的存在意义是什么呢？
+
+#### 4. include/leveldb/comparator.h  util/comparator.cc
+
+对key排序时使用的比较方法。默认为升序。
