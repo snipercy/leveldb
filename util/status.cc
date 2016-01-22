@@ -26,6 +26,8 @@ const char* Status::CopyState(const char* state) {
 // NotFound(const Slice& msg, const Slice& msg2 = Slice()) {
 //     status(kNotFound, msg, msg2);}
 
+Status::Status(Code code, const Slice& msg, const Slice& msg2) {
+
     assert(code != kOk);
     const uint32_t len1 = msg.size();
     const uint32_t len2 = msg2.size();
@@ -47,7 +49,7 @@ const char* Status::CopyState(const char* state) {
     state_ = result;
 
     // for debug
-    std::cout << "result:" << result << endl;
+    std::cout << "result:" << result << std::endl;
 }
 
 std::string Status::ToString() const {
@@ -76,7 +78,7 @@ std::string Status::ToString() const {
                 type = "IO error: ";
                 break;
             default:
-                snpritf(tmp, sizeof(tmp),"Unknown code(%d): ",
+                snprintf(tmp, sizeof(tmp),"Unknown code(%d): ",
                        static_cast<int>(code()));
                 type = tmp;
                 break;

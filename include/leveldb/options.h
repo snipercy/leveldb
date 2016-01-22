@@ -35,7 +35,7 @@ struct Options {
 
     // If true, an error is raised if the database already exits.
     // Default: false
-    bool error_if_exits;
+    bool error_if_exists;
 
     // If true, the implementation will do aggressive checking of the
     // data it is processing and will stop early if it detects any
@@ -50,7 +50,7 @@ struct Options {
     Logger* info_log;
 
     // default: 4MB
-    size_t wirte_buffer_size;
+    size_t write_buffer_size;
 
     // Number of open files that can used by DB. You may need to
     // increase this if your databases has a large working set (budget 

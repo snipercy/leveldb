@@ -137,3 +137,9 @@ return Status::NotFound("in-memory file skipped past end");
 #### 4. include/leveldb/comparator.h  util/comparator.cc
 
 对key排序时使用的比较方法。默认为升序。
+
+#### 5. include/leveldb/write_batch.h  db/write_batch.cc
+
+对若干数目 key 的 write 操作(put/delete)封装成 WriteBatch
+
+

@@ -11,16 +11,16 @@ class Comparator {
     public:
         virtual ~Comparator();
     
-    virtual int Compare(const Slice& a, const SLice& b) const = 0;
+    virtual int Compare(const Slice& a, const Slice& b) const = 0;
 
     // The name of comparator.
     virtual const char* Name() const = 0;
 
     virtual void FindShortestSeparator(
-            std::string* start;
+            std::string* start,
             const Slice& limit) const = 0;
 
-    virtual void FindShortSuccessor(str::string* key) const = 0;
+    virtual void FindShortSuccessor(std::string* key) const = 0;
 };
 
 extern const Comparator* BytewiseComparator();

@@ -18,7 +18,7 @@ public:
         return "leveldb.BytewiseComparator";
     }
     
-    virtual int Compare(const Slice& a, const Slice& b){
+    virtual int Compare(const Slice& a, const Slice& b) const {
         return a.compare(b);
     }
 
@@ -27,7 +27,7 @@ public:
         const Slice& limit) const {
         
         // size_t min_length = std::min(start->size(), limit.size());
-        size_t min_length = std::min(start.length(), limit.size());
+        size_t min_length = std::min(start->size(), limit.size());
         size_t diff_index = 0;
         while ((diff_index < min_length) && 
                 ((*start)[diff_index] == limit[diff_index])) {
@@ -42,7 +42,7 @@ public:
                 diff_byte + 1 < static_cast<uint8_t>(limit[diff_index])) {
                 (*start)[diff_index]++;
                 start->resize(diff_index + 1);
-                assert(Compara(*start, limit) < 0);
+                assert(Compare(*start, limit) < 0);
             }
         }
     }
@@ -62,15 +62,15 @@ public:
 } // namespace
 
 static port::OnceType once = LEVELDB_ONCE_INIT;
-static const Comparator* bytewize;
+static const Comparator* bytewise;
 
 static void InitModule() { 
     bytewise = new BytewiseComparatorImpl;
 }
 
 const Comparator* BytewiseComparator() {
-    prot::InitOnce(&once, InitModule);
-    return bytewize;
+    port::InitOnce(&once, InitModule);
+    return bytewise;
 }
 
 } // namespace leveldb

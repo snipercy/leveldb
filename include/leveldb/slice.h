@@ -39,7 +39,7 @@ public:
     void clear() { data_ = ""; size_ = 0; }
 
     // drop the first "n" bytes from slices
-    void remove_prifix(size_t n){
+    void remove_prefix(size_t n){
         assert( n <= size() );
         data_ += n;
         size_ -= n;

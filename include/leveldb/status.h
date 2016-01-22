@@ -27,7 +27,6 @@ public:
     // 拷贝构造函数和重装赋值运算符
     Status(const Status& s);
     void operator=(const Status& s);
-
     // return a success status.
     static Status OK() { return Status(); }
 
@@ -44,7 +43,7 @@ public:
     static Status NotSupported(const Slice& msg, const Slice& msg2 = Slice()) { 
         return Status(kNotSupported, msg, msg2);
     }
-    static Status InvaildArgument(const Slice& msg, const Slice& msg2 = Slice()) { 
+    static Status InvalidArgument(const Slice& msg, const Slice& msg2 = Slice()) { 
         return Status(kInvalidArgument, msg, msg2);
     }
     static Status IOError(const Slice& msg, const Slice& msg2 = Slice()) { 
@@ -52,7 +51,7 @@ public:
     }
 
     // returns true if the status indicates success.
-    bool ok() const { return (state == NULL); }
+    bool ok() const { return (state_ == NULL); }
 
     // returns true if the status indicates a NotFound error.
     bool IsNotFound() const { return code() == kNotFound; }
@@ -99,6 +98,11 @@ private:
 };
 
 inline Status::Status(const Status& s) {
+    state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
+}
+
+
+inline void Status::operator=(const Status& s) {
     if (state_ != s.state_) {
         delete[] state_;
         state_ = (s.state_ == NULL) ? NULL : CopyState(s.state_);
