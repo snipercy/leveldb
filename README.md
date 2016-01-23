@@ -142,4 +142,88 @@ return Status::NotFound("in-memory file skipped past end");
 
 对若干数目 key 的 write 操作(put/delete)封装成 WriteBatch
 
+#### 6. util/coding.h  util/coding.cc
 
+为了节省空间，原作者设计了一种变长编码方式来表示整型：varint。越小的数字所用的字节数越少。
+##### Varint编码
+一般int需要3-byte来表示一个整数，varint使用的变长编码的方式和utf-8编码的方法本质上是一样的，下面表示的一个3字节的utf8编码：
+''' 1110xxxx 10xxxxxx 10xxxxxx ```
+第一字节中的从最高位开始，有连续几个`1`就表示该字符有几个字节，后面的每一字节都以`10`开头。
+
+同样的道理，在varint变长编码中，如果每个字节的最高为1，表示后续的字节也是该数字的一部分；如果该位位0，则结束。
+```
+// 变长编码
+//
+// 每个数字用1到5个字节来编码，每个字节中的最高bit为标识位，
+// 剩下的7位用于表示数据
+char* EncodeVarint32(char* dst, uint32_t v) {
+  // Operate on characters as unsigneds
+  unsigned char* ptr = reinterpret_cast<unsigned char*>(dst);
+  static const int B = 128;
+  if (v < (1<<7)) {             // iff v < 128 then encode with 1-byte
+    *(ptr++) = v;
+  } else if (v < (1<<14)) {     // iff 128 <= v < 2^14 then ... 2-byte
+    *(ptr++) = v | B;
+    *(ptr++) = v>>7;
+  } else if (v < (1<<21)) {
+    *(ptr++) = v | B;
+    *(ptr++) = (v>>7) | B;
+    *(ptr++) = v>>14;
+  } else if (v < (1<<28)) {
+    *(ptr++) = v | B;
+    *(ptr++) = (v>>7) | B;
+    *(ptr++) = (v>>14) | B;
+    *(ptr++) = v>>21;
+  } else {                      // encode with with 5-byte
+    *(ptr++) = v | B;
+    *(ptr++) = (v>>7) | B;
+    *(ptr++) = (v>>14) | B;
+    *(ptr++) = (v>>21) | B;
+    *(ptr++) = v>>28;
+  }
+  return reinterpret_cast<char*>(ptr);
+}
+void PutVarint32(std::string* dst, uint32_t v) {
+  char buf[5];
+```
+
+##### varint解码
+```c++
+inline const char* GetVarint32Ptr(const char* p,
+                                  const char* limit,
+                                  uint32_t* value) {
+  if (p < limit) {
+    // 非const转换成const
+    uint32_t result = *(reinterpret_cast<const unsigned char*>(p));
+    // 只有一个字节
+    if ((result & 128) == 0) {
+      *value = result;
+      return p + 1;
+    }
+  }
+
+  // 多字节解码
+  return GetVarint32PtrFallback(p, limit, value);
+}
+```
+多字节解码函数
+```c++
+const char* GetVarint32PtrFallback(const char* p,
+                                   const char* limit,
+                                   uint32_t* value) {
+  uint32_t result = 0;
+  for (uint32_t shift = 0; shift <= 28 && p < limit; shift += 7) {
+    uint32_t byte = *(reinterpret_cast<const unsigned char*>(p));
+    p++;
+    if (byte & 128) {    // 最高位位1，还有后续字节
+      // More bytes are present
+      result |= ((byte & 127) << shift);
+    } else {
+      result |= (byte << shift);
+      *value = result;
+      return reinterpret_cast<const char*>(p);
+    }
+  }
+  return NULL;
+}
+```
