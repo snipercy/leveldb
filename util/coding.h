@@ -90,7 +90,6 @@ inline const char* GetVarint32Ptr(const char* p,
                                   const char* limit,
                                   uint32_t* value) {
   if (p < limit) {
-    // hhhh
     // 非const转换成const
     uint32_t result = *(reinterpret_cast<const unsigned char*>(p));
     if ((result & 128) == 0) {

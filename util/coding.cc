@@ -44,13 +44,17 @@ void PutFixed64(std::string* dst, uint64_t value) {
   dst->append(buf, sizeof(buf));
 }
 
+// 变长编码
+//
+// 每个数字用1到5个字节来编码，每个字节中的最高bit为标识位，
+// 剩下的7位用于表示数据
 char* EncodeVarint32(char* dst, uint32_t v) {
   // Operate on characters as unsigneds
   unsigned char* ptr = reinterpret_cast<unsigned char*>(dst);
   static const int B = 128;
-  if (v < (1<<7)) {
+  if (v < (1<<7)) {             // iff v < 128 then encode with 1-byte
     *(ptr++) = v;
-  } else if (v < (1<<14)) {
+  } else if (v < (1<<14)) {     // iff 128 <= v < 2^14 then ... 2-byte
     *(ptr++) = v | B;
     *(ptr++) = v>>7;
   } else if (v < (1<<21)) {
@@ -62,7 +66,7 @@ char* EncodeVarint32(char* dst, uint32_t v) {
     *(ptr++) = (v>>7) | B;
     *(ptr++) = (v>>14) | B;
     *(ptr++) = v>>21;
-  } else {
+  } else {                      // encode with with 5-byte
     *(ptr++) = v | B;
     *(ptr++) = (v>>7) | B;
     *(ptr++) = (v>>14) | B;
@@ -128,6 +132,7 @@ const char* GetVarint32PtrFallback(const char* p,
   return NULL;
 }
 
+// varint decode
 bool GetVarint32(Slice* input, uint32_t* value) {
   const char* p = input->data();
   const char* limit = p + input->size();
