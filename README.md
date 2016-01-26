@@ -237,4 +237,4 @@ const char* GetVarint32PtrFallback(const char* p,
 memtable是利用有名的`SkipList`来组织数据的，它是由William Pugh在论文：Skip lists: a probabilistic alternative to balanced trees中提出。下面的gif很形象的展示了skiplist的结构和查询/插入的过程，每个节点的level是随机生成的，动图中的`coin flip`展示了这一过程。一图胜千言。图片摘自[wiki] (https://en.wikipedia.org/wiki/Skip_list)
 ![skiplist](https://upload.wikimedia.org/wikipedia/commons/2/2c/Skip_list_add_element-en.gif)
 
-关于它的分析，网上有很多的写的又优秀的帖子，比如[segmentfault中的这篇] (http://segmentfault.com/a/1190000003051117)，此处不再进行文字分析。向大牛学习，重敲一遍它的源码，并加上自己的一些注释。
+关于它的分析，网上有很多的类似博文，可以参考[segmentfault中的这篇]。 (http://segmentfault.com/a/1190000003051117)
